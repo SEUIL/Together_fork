@@ -1,4 +1,4 @@
-package com.together.systemConfig;
+package com.together.systemConfig.CustomUserDetails;
 
 import com.together.user.UserEntity;
 import com.together.user.UserRepository;
@@ -25,11 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserEntity user = userRepository.findByUserLoginId(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-        // Spring Security의 UserDetails 객체를 반환한다.
-        return User.builder()
-                .username(user.getUserLoginId())
-                .password(user.getPassword())
-                .roles(user.getRole().name()) // "STUDENT" 또는 "PROFESSOR"
-                .build();
+        return new CustomUserDetails(user); // CustomUserDetails 반환
     }
 }

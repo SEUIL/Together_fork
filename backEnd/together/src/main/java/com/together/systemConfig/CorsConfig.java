@@ -1,3 +1,4 @@
+/*
 package com.together.systemConfig;
 
 
@@ -16,10 +17,15 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 모든 API 허용
                         .allowedOrigins("http://localhost:5173") // Vue 서버 주소
-                        .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메서드
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
+                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };
     }
 
 }
+//vue
+//http://localhost:5173
+//Spring Boot
+//http://localhost:8081*/

@@ -1,9 +1,12 @@
 package com.together.user;
 
+import com.together.systemConfig.jwt.JwtUtil;
+import com.together.user.dto.UserLoginRequestDto;
 import com.together.user.dto.UserSignUpRequestDto;
 import com.together.user.student.StudentEntity;
 import com.together.user.student.StudentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
+    private final JwtUtil jwtUtil;
 
 
     /** 회원가입
@@ -41,7 +45,7 @@ public class UserService {
      *                                  - 제공된 사용자 역할이 "STUDENT" 또는 "PROFESSOR"가 아닌 경우.
      */
     @Transactional
-    public void registerUser(UserSignUpRequestDto requestDto) {
+    public ResponseEntity<String> registerUser(UserSignUpRequestDto requestDto) {
         // 비밀번호 일치 여부 확인
         if (!requestDto.getPassword().equals(requestDto.getConfirmPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
@@ -79,6 +83,21 @@ public class UserService {
         else {
             throw new IllegalArgumentException("올바른 사용자 유형이 아닙니다.");
         }
+        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+    }
+
+    /**
+     * ✅ 로그인 로직 (JWT 발급)
+     */
+    public String login(UserLoginRequestDto requestDto) {
+        UserEntity user = userRepository.findByUserLoginId(requestDto.getUserLoginId())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 아이디 또는 비밀번호입니다."));
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("잘못된 아이디 또는 비밀번호입니다.");
+        }
+
+        return jwtUtil.generateToken(user.getUserLoginId());
     }
 
     public Optional<UserEntity> findUserByUsername(String userLoginId){
